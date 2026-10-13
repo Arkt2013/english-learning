@@ -94,7 +94,6 @@
         .custom-btn:hover {
             background-color: var(--accent-hover);
         }
-        /* Pulse animation for voice recording */
         @keyframes pulse-ring {
             0% { transform: scale(0.95); opacity: 0.8; }
             50% { transform: scale(1.1); opacity: 0.4; }
@@ -104,6 +103,10 @@
             animation: pulse-ring 1.5s infinite;
         }
     </style>
+    <!-- GitHub Secret Injection Target -->
+    <script>
+        window.GEMINI_API = "INJECT_GEMINI_API_HERE";
+    </script>
 </head>
 <body class="min-h-screen flex flex-col theme-midnight">
 
@@ -126,7 +129,7 @@
                 <span id="lang-display">Telugu (తెలుగు)</span>
             </button>
 
-            <!-- Settings / API Key / Theme Button -->
+            <!-- Settings / Theme Button -->
             <button onclick="openSettingsModal()" class="px-3 py-1.5 rounded-lg border border-[var(--border-color)] text-sm font-medium hover:bg-black/20 flex items-center space-x-2">
                 <i class="fa-solid fa-gear"></i>
                 <span id="nav-settings">Settings</span>
@@ -337,19 +340,12 @@
         </div>
     </div>
 
-    <!-- Settings & API Key Modal -->
+    <!-- Settings Modal (Theme Only) -->
     <div id="settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="custom-card max-w-md w-full rounded-2xl shadow-2xl border p-6 space-y-6">
             <div class="flex justify-between items-center">
                 <h3 class="font-bold text-lg" data-translate="settings_title">Platform Settings</h3>
                 <button onclick="closeSettingsModal()" class="text-[var(--text-muted)] hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <!-- Gemini API Key Input -->
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2" data-translate="api_key_label">Google Gemini API Key</label>
-                <input type="password" id="api-key-input" placeholder=secrets.GEMINI_API class="w-full bg-black/20 border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--accent-color)]">
-                <p class="text-xs text-[var(--text-muted)] mt-1.5" data-translate="api_key_hint">Stored securely in your browser's localStorage. Required for AI features.</p>
             </div>
 
             <!-- Theme Picker -->
@@ -379,16 +375,14 @@
                 </div>
             </div>
 
-            <div class="flex justify-end space-x-3 pt-2">
-                <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl border border-[var(--border-color)] text-xs font-semibold hover:bg-black/20" data-translate="cancel_btn">Cancel</button>
-                <button onclick="saveSettings()" class="custom-btn px-5 py-2 rounded-xl text-xs font-semibold" data-translate="save_btn">Save Settings</button>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeSettingsModal()" class="custom-btn px-5 py-2 rounded-xl text-xs font-semibold" data-translate="close_btn">Close</button>
             </div>
         </div>
     </div>
 
     <!-- JavaScript Application Logic -->
     <script>
-        // Dictionary for Bilingual UI (English & Telugu)
         const i18n = {
             en: {
                 site_title: "Aryan's Learning Site",
@@ -423,11 +417,7 @@
                 listen_audio: "Listen to Audio",
                 close_btn: "Close Lesson",
                 settings_title: "Platform Settings",
-                api_key_label: "Google Gemini API Key",
-                api_key_hint: "Stored securely in your browser's localStorage. Required for AI features.",
-                theme_label: "Color Palette / Theme",
-                cancel_btn: "Cancel",
-                save_btn: "Save Settings"
+                theme_label: "Color Palette / Theme"
             },
             te: {
                 site_title: "ఆర్యన్స్ లెర్నింగ్ సైట్",
@@ -462,123 +452,70 @@
                 listen_audio: "ఆడియో వినండి",
                 close_btn: "మూసివేయి",
                 settings_title: "ప్లాట్‌ఫారమ్ సెట్టింగ్‌లు",
-                api_key_label: "గూగుల్ జెమిని API కీ",
-                api_key_hint: "మీ బ్రౌజర్ యొక్క లోకల్ స్టోరేజ్‌లో భద్రపరచబడుతుంది.",
-                theme_label: "కలర్ థీమ్",
-                cancel_btn: "రద్దు చేయి",
-                save_btn: "సేవ్ చేయి"
+                theme_label: "కలర్ థీమ్"
             }
         };
 
-        // Application State
         let currentLang = localStorage.getItem('aryan_lang') || 'en';
         let currentTheme = localStorage.getItem('aryan_theme') || 'theme-midnight';
-        let apiKey = localStorage.getItem('aryan_gemini_key') || '';
         let userLevel = localStorage.getItem('aryan_level') || 'Beginner';
         let userPathway = localStorage.getItem('aryan_pathway') || '';
         
         let testQuestions = [];
         let currentTestIndex = 0;
         let testAnswers = [];
-
-        let chatHistory = [];
         let recognition = null;
         let isRecording = false;
 
-        // Default Curriculum Modules
         let learningModules = [
             { id: 1, title: "Everyday Greetings & Introductions", level: "Beginner", desc: "Learn how to introduce yourself politely and greet people in different settings.", icon: "fa-handshake" },
             { id: 2, title: "Essential Daily Vocabulary", level: "Beginner", desc: "Master 50+ common words used in shopping, commuting, and food ordering.", icon: "fa-book" },
             { id: 3, title: "Simple Present & Past Tenses", level: "Intermediate", desc: "Understand how to talk about daily habits and past experiences accurately.", icon: "fa-clock" },
-            { id: 4, title: "Professional Email & Workplace English", level: "Intermediate", desc: "Craft polite corporate emails and participate effectively in office meetings.", icon: "fa-briefcase" },
-            { id: 5, title: "Advanced Idioms & Fluent Conversations", level: "Advanced", desc: "Speak like a native speaker using advanced conversational idioms and phrasing.", icon: "fa-comments" }
+            { id: 4, title: "Professional Email & Workplace English", level: "Intermediate", desc: "Craft polite corporate emails and participate effectively in team discussions.", icon: "fa-briefcase" },
+            { id: 5, title: "Advanced Idioms & Natural Phrasing", level: "Advanced", desc: "Speak like a native speaker using common idioms, phrasal verbs, and nuance.", icon: "fa-comments" },
+            { id: 6, title: "Public Speaking & Impromptu Debates", level: "Advanced", desc: "Build confidence, eliminate hesitation, and structure persuasive speeches.", icon: "fa-microphone-lines" }
         ];
 
-        // Initialize App on Load
-        window.onload = function() {
+        window.addEventListener('DOMContentLoaded', () => {
             setTheme(currentTheme);
-            updateUIText();
-            
-            // Check if user already completed onboarding
+            updateUILanguage();
             if (userPathway) {
-                showView('view-dashboard');
+                document.getElementById('view-landing').classList.add('hidden');
+                document.getElementById('view-dashboard').classList.remove('hidden');
                 renderModules();
-            } else if (localStorage.getItem('aryan_lang')) {
-                showView('view-onboarding');
-            } else {
-                showView('view-landing');
             }
+        });
 
-            // Initialize Speech Recognition if supported
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (SpeechRecognition) {
-                recognition = new SpeechRecognition();
-                recognition.continuous = false;
-                recognition.interimResults = false;
-                recognition.lang = 'en-US';
-
-                recognition.onresult = function(event) {
-                    const speechText = event.results[0][0].transcript;
-                    document.getElementById('chat-input').value = speechText;
-                    stopRecordingUI();
-                    sendChatMessage();
-                };
-
-                recognition.onerror = function(event) {
-                    stopRecordingUI();
-                };
-
-                recognition.onend = function() {
-                    stopRecordingUI();
-                };
-            }
-        };
-
-        // Switch Views Helper
-        function showView(viewId) {
-            ['view-landing', 'view-onboarding', 'view-test', 'view-dashboard'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            document.getElementById(viewId).classList.remove('hidden');
-        }
-
-        // Language Toggle
-        function selectInitialLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('aryan_lang', lang);
-            updateUIText();
-            showView('view-onboarding');
+        function setTheme(themeName) {
+            currentTheme = themeName;
+            localStorage.setItem('aryan_theme', themeName);
+            document.body.className = `min-h-screen flex flex-col ${themeName}`;
         }
 
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'te' : 'en';
             localStorage.setItem('aryan_lang', currentLang);
-            updateUIText();
+            updateUILanguage();
         }
 
-        function updateUIText() {
+        function selectInitialLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('aryan_lang', lang);
+            updateUILanguage();
+            document.getElementById('view-landing').classList.add('hidden');
+            document.getElementById('view-onboarding').classList.remove('hidden');
+        }
+
+        function updateUILanguage() {
+            const strings = i18n[currentLang];
             document.getElementById('lang-display').innerText = currentLang === 'en' ? 'Telugu (తెలుగు)' : 'English';
-            document.getElementById('nav-settings').innerText = currentLang === 'en' ? 'Settings' : 'సెట్టింగ్‌లు';
-            
-            // Update data-translate elements
             document.querySelectorAll('[data-translate]').forEach(el => {
                 const key = el.getAttribute('data-translate');
-                if (i18n[currentLang][key]) {
-                    el.innerText = i18n[currentLang][key];
-                }
+                if (strings[key]) el.innerText = strings[key];
             });
         }
 
-        // Theme Switcher
-        function setTheme(themeClass) {
-            currentTheme = themeClass;
-            localStorage.setItem('aryan_theme', themeClass);
-            document.body.className = `min-h-screen flex flex-col ${themeClass}`;
-        }
-
-        // Settings Modal
         function openSettingsModal() {
-            document.getElementById('api-key-input').value = apiKey;
             document.getElementById('settings-modal').classList.remove('hidden');
         }
 
@@ -586,64 +523,60 @@
             document.getElementById('settings-modal').classList.add('hidden');
         }
 
-        function saveSettings() {
-            apiKey = document.getElementById('api-key-input').value.trim();
-            localStorage.setItem('aryan_gemini_key', apiKey);
-            closeSettingsModal();
-        }
-
-        // Onboarding Pathways
         function startPathway(path) {
             userPathway = path;
             localStorage.setItem('aryan_pathway', path);
+            document.getElementById('view-onboarding').classList.add('hidden');
+
             if (path === 'scratch') {
                 userLevel = 'Beginner';
                 localStorage.setItem('aryan_level', userLevel);
-                showView('view-dashboard');
+                document.getElementById('view-dashboard').classList.remove('hidden');
                 renderModules();
             } else {
-                startAdaptiveTest();
+                document.getElementById('view-test').classList.remove('hidden');
+                loadAdaptiveTestQuestions();
             }
         }
 
-        // Adaptive Test Flow using Gemini API
-        async function startAdaptiveTest() {
-            showView('view-test');
+        async function callGeminiAPI(promptText) {
+            const activeKey = window.GEMINI_API;
+            if (!activeKey || activeKey === 'INJECT_GEMINI_API_HERE') {
+                throw new Error("GEMINI_API secret is not configured or injected.");
+            }
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${activeKey}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+            });
+
+            if (!response.ok) throw new Error(`Gemini API Error: ${response.statusText}`);
+            const data = await response.json();
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        }
+
+        async function loadAdaptiveTestQuestions() {
             document.getElementById('test-loading').classList.remove('hidden');
-            
-            const prompt = `Generate 4 English proficiency assessment multiple-choice questions (testing grammar, vocabulary, and sentence construction) suitable for determining if a user is Beginner, Intermediate, or Advanced. 
-            Return ONLY a valid JSON array in this exact format:
-            [
-              {
-                "question": "Choose the correct sentence:",
-                "options": ["She go to school yesterday.", "She went to school yesterday.", "She gone to school yesterday.", "She going to school yesterday."],
-                "answer": 1
-              }
-            ]`;
+            const prompt = `Generate a 5-question multiple choice English proficiency test in JSON format. Return ONLY a valid JSON array of objects with keys: "question", "options" (array of 4 strings), and "level" ("Beginner", "Intermediate", or "Advanced").`;
 
             try {
-                const response = await callGeminiAPI(prompt);
-                let jsonText = response.trim();
-                if (jsonText.startsWith('```json')) {
-                    jsonText = jsonText.replace(/^```json/, '').replace(/```$/, '').trim();
-                } else if (jsonText.startsWith('```')) {
-                    jsonText = jsonText.replace(/^```/, '').replace(/```$/, '').trim();
-                }
-                testQuestions = JSON.parse(jsonText);
+                const responseText = await callGeminiAPI(prompt);
+                const cleanedJSON = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+                testQuestions = JSON.parse(cleanedJSON);
                 currentTestIndex = 0;
                 testAnswers = [];
                 document.getElementById('test-loading').classList.add('hidden');
                 renderTestQuestion();
             } catch (err) {
-                // Fallback questions if API key missing or error
                 testQuestions = [
-                    { question: "Choose the correct past tense of 'go':", options: ["Goed", "Gone", "Went", "Going"], answer: 2 },
-                    { question: "Which sentence is grammatically correct?", options: ["He don't like apples.", "He doesn't likes apples.", "He doesn't like apples.", "He not like apples."], answer: 2 },
-                    { question: "Select the appropriate synonym for 'Rapid':", options: ["Slow", "Quick", "Heavy", "Quiet"], answer: 1 },
-                    { question: "Choose the correct preposition: 'She is good ___ mathematics.'", options: ["at", "in", "on", "with"], answer: 0 }
+                    { question: "Choose the correct greeting for the morning:", options: ["Good night", "Good morning", "Goodbye", "Good evening"], level: "Beginner" },
+                    { question: "Which sentence is grammatically correct?", options: ["She go to school everyday.", "She goes to school everyday.", "She going to school everyday.", "She gone to school everyday."], level: "Beginner" },
+                    { question: "Identify the past tense of 'run':", options: ["ran", "running", "runs", "runned"], level: "Intermediate" },
+                    { question: "Choose the synonym of 'benevolent':", options: ["Hostile", "Kind", "Greedy", "Indifferent"], level: "Advanced" },
+                    { question: "Select the correct conditional sentence:", options: ["If I had time, I would have helped you.", "If I have time, I would help you.", "If I had time, I will help you.", "If I would have time, I helped you."], level: "Advanced" }
                 ];
-                currentTestIndex = 0;
-                testAnswers = [];
                 document.getElementById('test-loading').classList.add('hidden');
                 renderTestQuestion();
             }
@@ -651,46 +584,67 @@
 
         function renderTestQuestion() {
             if (currentTestIndex >= testQuestions.length) {
-                finishAdaptiveTest();
+                evaluateTestResults();
                 return;
             }
             const q = testQuestions[currentTestIndex];
             document.getElementById('test-progress-label').innerText = `Question ${currentTestIndex + 1} of ${testQuestions.length}`;
             document.getElementById('test-question').innerText = q.question;
-            
             const optionsContainer = document.getElementById('test-options');
             optionsContainer.innerHTML = '';
-            q.options.forEach((opt, idx) => {
+
+            q.options.forEach((opt) => {
                 const btn = document.createElement('button');
-                btn.className = 'w-full text-left p-4 rounded-xl custom-card border border-[var(--border-color)] hover:border-[var(--accent-color)] font-medium transition';
-                btn.innerText = opt;
-                btn.onclick = () => answerTestQuestion(idx);
+                btn.className = "w-full text-left p-4 rounded-xl border border-[var(--border-color)] hover:border-[var(--accent-color)] bg-black/10 transition font-medium text-sm flex items-center justify-between";
+                btn.innerHTML = `<span>${opt}</span><i class="fa-solid fa-chevron-right text-xs text-[var(--text-muted)]"></i>`;
+                btn.onclick = () => answerTestQuestion(q.level);
                 optionsContainer.appendChild(btn);
             });
         }
 
-        function answerTestQuestion(selectedIndex) {
-            const q = testQuestions[currentTestIndex];
-            testAnswers.push(selectedIndex === q.answer);
+        function answerTestQuestion(questionLevel) {
+            testAnswers.push(questionLevel);
             currentTestIndex++;
             renderTestQuestion();
         }
 
-        function finishAdaptiveTest() {
-            const correctCount = testAnswers.filter(Boolean).length;
-            if (correctCount >= 3) {
-                userLevel = 'Advanced';
-            } else if (correctCount >= 2) {
-                userLevel = 'Intermediate';
-            } else {
-                userLevel = 'Beginner';
-            }
+        function evaluateTestResults() {
+            document.getElementById('view-test').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.remove('hidden');
+            userLevel = 'Intermediate';
+            if (testAnswers.includes('Advanced')) userLevel = 'Advanced';
+            else if (!testAnswers.includes('Intermediate')) userLevel = 'Beginner';
+
             localStorage.setItem('aryan_level', userLevel);
-            showView('view-dashboard');
             renderModules();
         }
 
-        // Dashboard Tab Switcher
+        function renderModules() {
+            document.getElementById('user-level-badge').innerText = userLevel;
+            const grid = document.getElementById('modules-grid');
+            grid.innerHTML = '';
+
+            learningModules.forEach(m => {
+                const card = document.createElement('div');
+                card.className = "custom-card p-6 rounded-2xl shadow-lg border flex flex-col justify-between hover:border-[var(--accent-color)] transition group cursor-pointer";
+                card.onclick = () => openLessonModule(m.title, m.desc);
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
+                                <i class="fa-solid ${m.icon}"></i>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 rounded-full bg-black/20 font-semibold text-[var(--text-muted)]">${m.level}</span>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">${m.title}</h3>
+                        <p class="text-xs text-[var(--text-muted)] mb-4">${m.desc}</p>
+                    </div>
+                    <button class="custom-btn w-full py-2 rounded-xl text-xs font-semibold">Start Module</button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
         function switchTab(tabName) {
             const lessonsBtn = document.getElementById('tab-btn-lessons');
             const chatBtn = document.getElementById('tab-btn-chat');
@@ -710,61 +664,33 @@
             }
         }
 
-        // Render Modules
-        function renderModules() {
-            document.getElementById('user-level-badge').innerText = userLevel;
-            const grid = document.getElementById('modules-grid');
-            grid.innerHTML = '';
-
-            learningModules.forEach(mod => {
-                const card = document.createElement('div');
-                card.className = 'custom-card p-6 rounded-2xl shadow-lg border flex flex-col justify-between hover:border-[var(--accent-color)] transition';
-                card.innerHTML = `
-                    <div>
-                        <div class="flex justify-between items-center mb-4">
-                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg">
-                                <i class="fa-solid ${mod.icon}"></i>
-                            </div>
-                            <span class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-black/20 text-[var(--text-muted)]">${mod.level}</span>
-                        </div>
-                        <h3 class="font-bold text-lg mb-2">${mod.title}</h3>
-                        <p class="text-xs text-[var(--text-muted)] mb-6 leading-relaxed">${mod.desc}</p>
-                    </div>
-                    <button onclick="openLessonModal(${mod.id})" class="custom-btn py-2 px-4 rounded-xl text-xs font-semibold w-full text-center">Start Lesson</button>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        // Open Lesson Modal & AI Content Generation
-        async function openLessonModal(modId) {
-            const mod = learningModules.find(m => m.id === modId);
-            document.getElementById('modal-lesson-title').innerText = mod ? mod.title : "AI Lesson";
-            const body = document.getElementById('modal-lesson-body');
-            body.innerHTML = `<div class="text-center py-8"><i class="fa-solid fa-spinner fa-spin text-2xl text-[var(--accent-color)] mb-2"></i><p class="text-xs text-[var(--text-muted)]">Gemini is generating your personalized interactive lesson...</p></div>`;
+        async function openLessonModule(title, description) {
+            document.getElementById('modal-lesson-title').innerText = title;
+            document.getElementById('modal-lesson-body').innerHTML = `<p class="text-center text-[var(--text-muted)] py-6"><i class="fa-solid fa-spinner fa-spin text-2xl mr-2"></i> Gemini is generating your interactive lesson...</p>`;
             document.getElementById('lesson-modal').classList.remove('hidden');
 
-            const prompt = `Create a comprehensive, engaging English learning lesson titled "${mod ? mod.title : 'English Module'}" for a ${userLevel} level student. 
-            Include:
-            1. Core Concepts & Grammar Rules (with Telugu explanations if helpful)
-            2. 3 Practical Real-life Examples with translation
-            3. A short 3-question practice exercise with answers.
-            Format cleanly with HTML tags (<h2>, <p>, <ul>, <li>, <strong>).`;
+            const prompt = `Create a comprehensive interactive English learning lesson titled "${title}" suitable for a "${userLevel}" student. Include explanation, 3 example sentences with Telugu translations, and a quick practice exercise.`;
 
             try {
-                const result = await callGeminiAPI(prompt);
-                body.innerHTML = result;
+                const content = await callGeminiAPI(prompt);
+                document.getElementById('modal-lesson-body').innerHTML = `<div class="whitespace-pre-line">${content}</div>`;
             } catch (err) {
-                body.innerHTML = `
-                    <h4 class="font-bold text-base mb-2">Lesson Overview: ${mod.title}</h4>
-                    <p class="text-xs text-[var(--text-muted)] mb-4">Focusing on ${userLevel} proficiency standards.</p>
-                    <ul class="list-disc pl-5 space-y-2 text-xs">
-                        <li><strong>Rule 1:</strong> Practice pronunciation daily with clear articulation.</li>
-                        <li><strong>Rule 2:</strong> Build vocabulary by learning 5 new words every day.</li>
-                        <li><strong>Example:</strong> "Good morning! How are you doing today?" (శుభోదయం! మీరు ఈరోజు ఎలా ఉన్నారు?)</li>
-                    </ul>
+                document.getElementById('modal-lesson-body').innerHTML = `
+                    <h4 class="font-bold text-base mb-2">Lesson Overview: ${title}</h4>
+                    <p class="mb-4">${description}</p>
+                    <div class="custom-card p-4 rounded-xl border mb-4">
+                        <span class="font-semibold text-[var(--accent-color)]">Rule 1:</span> Practice pronunciation daily with clear articulation.<br>
+                        <span class="font-semibold text-[var(--accent-color)]">Rule 2:</span> Build vocabulary by learning 5 new words every day.
+                    </div>
+                    <div class="custom-card p-4 rounded-xl border">
+                        <span class="font-semibold">Example:</span> "Good morning! How are you doing today?" (శుభోదయం! మీరు ఈరోజు ఎలా ఉన్నారు?)
+                    </div>
                 `;
             }
+        }
+
+        async function generateCustomLesson() {
+            openLessonModule("AI Customized Masterclass Lesson", "Tailored specifically for your learning level.");
         }
 
         function closeLessonModal() {
@@ -778,188 +704,119 @@
             window.speechSynthesis.speak(utterance);
         }
 
-        async function generateCustomLesson() {
-            const title = prompt("Enter topic for custom AI lesson (e.g., 'Airport Conversation' or 'Past Tense Verbs'):");
-            if (!title) return;
-            
-            learningModules.push({
-                id: learningModules.length + 1,
-                title: title,
-                level: userLevel,
-                desc: "Custom AI-generated lesson tailored to your specific learning interest.",
-                icon: "fa-star"
-            });
-            renderModules();
-            openLessonModal(learningModules[learningModules.length - 1].id);
-        }
-
-        // Live AI Chat & Speech Coaching Engine
-        function handleChatKeypress(e) {
-            if (e.key === 'Enter') {
-                sendChatMessage();
-            }
+        function handleChatKeypress(event) {
+            if (event.key === 'Enter') sendChatMessage();
         }
 
         async function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if (!text) return;
+            const inputField = document.getElementById('chat-input');
+            const message = inputField.value.trim();
+            if (!message) return;
 
-            input.value = '';
-            appendChatMessage('user', text);
-            chatHistory.push({ role: 'user', parts: [{ text: text }] });
+            appendChatMessage(message, 'user');
+            inputField.value = '';
 
-            // Show typing indicator
-            const typingId = appendChatMessage('ai', 'Thinking and evaluating your speech...');
+            const chatMessages = document.getElementById('chat-messages');
+            const typingId = 'typing-' + Date.now();
+            const typingDiv = document.createElement('div');
+            typingDiv.id = typingId;
+            typingDiv.className = "flex items-start space-x-3";
+            typingDiv.innerHTML = `<div class="w-8 h-8 rounded-full custom-btn flex items-center justify-center flex-shrink-0 text-sm font-bold">AI</div><div class="custom-card p-4 rounded-2xl max-w-xl text-sm border"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Evaluating speech and formulating response...</div>`;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            const prompt = `You are an expert AI English tutor and speech coach. The user just said: "${text}".
-            Respond naturally to continue the conversation in English. Also, evaluate their English proficiency for this sentence.
-            Return a JSON object in this exact format:
-            {
-              "reply": "Your conversational response here...",
-              "score": 8.5,
-              "grammarScore": "9/10",
-              "fluencyScore": "8/10",
-              "hesitationScore": "Low (9/10)",
-              "feedback": "Constructive feedback on grammar, confidence, or filler words."
-            }`;
+            const prompt = `You are an expert AI English tutor and speech coach. The user (${userLevel} level) said: "${message}". Evaluate their English output and respond in valid JSON format ONLY with keys: "reply", "overall_score" (number out of 10), "grammar_score" (number out of 10), "fluency_score" (number out of 10), "hesitation_score" (number out of 10), "feedback" (string).`;
 
             try {
-                const response = await callGeminiAPI(prompt);
-                let jsonText = response.trim();
-                if (jsonText.startsWith('```json')) {
-                    jsonText = jsonText.replace(/^```json/, '').replace(/```$/, '').trim();
-                } else if (jsonText.startsWith('```')) {
-                    jsonText = jsonText.replace(/^```/, '').replace(/```$/, '').trim();
-                }
-                const data = JSON.parse(jsonText);
-                
-                // Remove typing indicator
+                const resText = await callGeminiAPI(prompt);
+                const cleaned = resText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const evalData = JSON.parse(cleaned);
+
                 document.getElementById(typingId).remove();
-                
-                appendChatMessage('ai', data.reply);
-                chatHistory.push({ role: 'model', parts: [{ text: data.reply }] });
-
-                // Display Evaluation
-                showEvaluationPanel(data);
-
-                // Speak response audio
-                const utterance = new SpeechSynthesisUtterance(data.reply);
-                utterance.lang = 'en-US';
-                window.speechSynthesis.speak(utterance);
-
+                appendChatMessage(evalData.reply, 'ai');
+                showEvaluationMetrics(evalData);
             } catch (err) {
                 document.getElementById(typingId).remove();
-                const fallbackReply = "That's a very interesting point! Let's keep practicing your English sentence structure. Try telling me more about your daily hobbies.";
-                appendChatMessage('ai', fallbackReply);
-                showEvaluationPanel({
-                    score: 8.0,
-                    grammarScore: "8/10",
-                    fluencyScore: "8/10",
-                    hesitationScore: "Low",
-                    feedback: "Good vocabulary usage! Keep sentences active and clear."
+                appendChatMessage("That's a wonderful sentence! Keep practicing your sentence structures.", 'ai');
+                showEvaluationMetrics({
+                    overall_score: 8.5,
+                    grammar_score: 9,
+                    fluency_score: 8,
+                    hesitation_score: 9,
+                    feedback: "Good vocabulary usage! Try to maintain a steady cadence."
                 });
             }
         }
 
-        function appendChatMessage(sender, text) {
-            const container = document.getElementById('chat-messages');
-            const div = document.createElement('div');
-            const msgId = 'msg-' + Date.now();
-            div.id = msgId;
-            div.className = `flex items-start space-x-3 ${sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`;
-            
-            div.innerHTML = `
-                <div class="w-8 h-8 rounded-full ${sender === 'user' ? 'bg-emerald-500/20 text-emerald-400' : 'custom-btn'} flex items-center justify-center flex-shrink-0 text-sm font-bold">${sender === 'user' ? 'U' : 'AI'}</div>
-                <div class="custom-card p-4 rounded-2xl max-w-xl text-sm border shadow-md">
-                    <p>${text}</p>
-                </div>
-            `;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-            return msgId;
+        function appendChatMessage(text, sender) {
+            const chatMessages = document.getElementById('chat-messages');
+            const msgDiv = document.createElement('div');
+            if (sender === 'user') {
+                msgDiv.className = "flex items-start space-x-3 justify-end";
+                msgDiv.innerHTML = `<div class="custom-card p-4 rounded-2xl max-w-xl text-sm border bg-[var(--accent-color)] text-white"><p>${text}</p></div><div class="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center flex-shrink-0 text-sm font-bold text-white">You</div>`;
+            } else {
+                msgDiv.className = "flex items-start space-x-3";
+                msgDiv.innerHTML = `<div class="w-8 h-8 rounded-full custom-btn flex items-center justify-center flex-shrink-0 text-sm font-bold">AI</div><div class="custom-card p-4 rounded-2xl max-w-xl text-sm border"><p>${text}</p></div>`;
+            }
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function showEvaluationPanel(data) {
+        function showEvaluationMetrics(data) {
             document.getElementById('evaluation-panel').classList.remove('hidden');
-            document.getElementById('eval-overall-score').innerText = `Score: ${data.score}/10`;
-            document.getElementById('score-grammar').innerText = data.grammarScore;
-            document.getElementById('score-fluency').innerText = data.fluencyScore;
-            document.getElementById('score-hesitation').innerText = data.hesitationScore;
+            document.getElementById('eval-overall-score').innerText = `Score: ${data.overall_score}/10`;
+            document.getElementById('score-grammar').innerText = `${data.grammar_score}/10`;
+            document.getElementById('score-fluency').innerText = `${data.fluency_score}/10`;
+            document.getElementById('score-hesitation').innerText = `${data.hesitation_score}/10`;
             document.getElementById('eval-feedback').innerText = data.feedback;
         }
 
         function clearChatHistory() {
-            document.getElementById('chat-messages.innerHTML') = '';
             document.getElementById('chat-messages').innerHTML = `
                 <div class="flex items-start space-x-3">
                     <div class="w-8 h-8 rounded-full custom-btn flex items-center justify-center flex-shrink-0 text-sm font-bold">AI</div>
                     <div class="custom-card p-4 rounded-2xl max-w-xl text-sm border">
-                        <p>Chat cleared. Let's start fresh! Speak or type your English sentence below.</p>
+                        <p data-translate="chat_welcome">Hello! I am your AI English coach. Let's practice conversation. Speak or type your response below, and I'll evaluate your grammar, fluency, and hesitation rate!</p>
                     </div>
                 </div>
             `;
             document.getElementById('evaluation-panel').classList.add('hidden');
-            chatHistory = [];
         }
 
-        // Web Speech API Microphone Integration
         function toggleSpeechRecognition() {
-            if (!recognition) {
-                alert("Speech recognition is not supported in your browser. Please use Chrome or Edge.");
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Speech recognition is not supported in your browser.");
                 return;
             }
+
             const micBtn = document.getElementById('mic-btn');
             if (isRecording) {
-                recognition.stop();
-                stopRecordingUI();
-            } else {
-                recognition.start();
-                isRecording = true;
-                micBtn.classList.add('bg-red-500/20', 'border-red-500', 'text-red-400', 'recording-pulse');
-                document.getElementById('chat-input').placeholder = "Listening... Speak now...";
+                if (recognition) recognition.stop();
+                isRecording = false;
+                micBtn.classList.remove('recording-pulse', 'text-red-500', 'border-red-500');
+                return;
             }
-        }
 
-        function stopRecordingUI() {
-            isRecording = false;
-            const micBtn = document.getElementById('mic-btn');
-            micBtn.classList.remove('bg-red-500/20', 'border-red-500', 'text-red-400', 'recording-pulse');
-            document.getElementById('chat-input').placeholder = "Type your message in English or click mic to speak...";
-        }
+            recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
 
-        // Gemini API Helper with Exponential Backoff
-        async function callGeminiAPI(prompt, retries = 3, delay = 1000) {
-            const modelName = "gemini-3-flash-preview";
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-            
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }]
+            recognition.onstart = () => {
+                isRecording = true;
+                micBtn.classList.add('recording-pulse', 'text-red-500', 'border-red-500');
+            };
+            recognition.onresult = (event) => {
+                document.getElementById('chat-input').value = event.results[0][0].transcript;
+                sendChatMessage();
+            };
+            recognition.onend = recognition.onerror = () => {
+                isRecording = false;
+                micBtn.classList.remove('recording-pulse', 'text-red-500', 'border-red-500');
             };
 
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`API error: ${response.status}`);
-                    }
-                    
-                    const result = await response.json();
-                    const candidate = result.candidates?.[0];
-                    if (candidate && candidate.content?.parts?.[0]?.text) {
-                        return candidate.content.parts[0].text;
-                    }
-                    throw new Error("Invalid response structure from Gemini API");
-                } catch (err) {
-                    if (i === retries - 1) throw err;
-                    await new Promise(res => setTimeout(res, delay * Math.pow(2, i)));
-                }
-            }
+            recognition.start();
         }
     </script>
 </body>
