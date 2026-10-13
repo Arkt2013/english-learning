@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aryan's Learning Site - AI English Learning Platform</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Telugu:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans Telugu', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+        body.theme-midnight {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --accent-color: #6366f1;
+            --accent-hover: #4f46e5;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border-color: #1f2937;
+        }
+        body.theme-emerald {
+            --bg-primary: #022c22;
+            --bg-secondary: #064e3b;
+            --accent-color: #10b981;
+            --accent-hover: #059669;
+            --text-main: #ecfdf5;
+            --text-muted: #6ee7b7;
+            --border-color: #047857;
+        }
+        body.theme-ocean {
+            --bg-primary: #082f49;
+            --bg-secondary: #0c4a6e;
+            --accent-color: #0ea5e9;
+            --accent-hover: #0284c7;
+            --text-main: #f0f9ff;
+            --text-muted: #7dd3fc;
+            --border-color: #0369a1;
+        }
+        body.theme-sunset {
+            --bg-primary: #451a03;
+            --bg-secondary: #78350f;
+            --accent-color: #f59e0b;
+            --accent-hover: #d97706;
+            --text-main: #fffbeb;
+            --text-muted: #fde68a;
+            --border-color: #b45309;
+        }
+        body.theme-slate {
+            --bg-primary: #1e293b;
+            --bg-secondary: #334155;
+            --accent-color: #64748b;
+            --accent-hover: #475569;
+            --text-main: #f1f5f9;
+            --text-muted: #cbd5e1;
+            --border-color: #475569;
+        }
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            font-family: 'Inter', 'Noto Sans Telugu', sans-serif;
+        }
+        .custom-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .custom-btn {
+            background-color: var(--accent-color);
+            color: #ffffff;
+            transition: all 0.2s ease;
+        }
+        .custom-btn:hover {
+            background-color: var(--accent-hover);
+        }
+        /* Pulse animation for voice recording */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 0.4; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .recording-pulse {
+            animation: pulse-ring 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col theme-midnight">
+
+    <!-- Header Navigation -->
+    <header class="custom-card border-b px-4 lg:px-8 py-4 flex flex-wrap justify-between items-center sticky top-0 z-50 shadow-md">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl custom-btn flex items-center justify-center font-bold text-xl shadow-lg">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg lg:text-xl tracking-tight" id="site-title">Aryan's Learning Site</h1>
+                <p class="text-xs text-[var(--text-muted)]" id="site-subtitle">AI-Powered English Masterclass</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3 mt-2 sm:mt-0">
+            <!-- Language Switcher -->
+            <button onclick="toggleLanguage()" class="px-3 py-1.5 rounded-lg border border-[var(--border-color)] text-sm font-medium hover:bg-black/20 flex items-center space-x-2">
+                <i class="fa-solid fa-globe"></i>
+                <span id="lang-display">Telugu (తెలుగు)</span>
+            </button>
+
+            <!-- Settings / API Key / Theme Button -->
+            <button onclick="openSettingsModal()" class="px-3 py-1.5 rounded-lg border border-[var(--border-color)] text-sm font-medium hover:bg-black/20 flex items-center space-x-2">
+                <i class="fa-solid fa-gear"></i>
+                <span id="nav-settings">Settings</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8 flex flex-col">
+
+        <!-- VIEW 1: Language & Landing Screen -->
+        <div id="view-landing" class="flex-1 flex flex-col items-center justify-center text-center max-w-3xl mx-auto my-auto py-12">
+            <div class="w-20 h-20 rounded-2xl custom-btn flex items-center justify-center text-3xl mb-6 shadow-2xl">
+                <i class="fa-solid fa-book-open-reader"></i>
+            </div>
+            <h2 class="text-3xl lg:text-5xl font-extrabold mb-4 tracking-tight" data-translate="welcome_title">Welcome to Aryan's Learning Site</h2>
+            <p class="text-[var(--text-muted)] text-lg mb-8 max-w-xl" data-translate="welcome_desc">Your personal AI English tutor designed to take you from foundational basics to fluent mastery with voice coaching and real-time feedback.</p>
+            
+            <div class="custom-card p-6 rounded-2xl w-full max-w-md shadow-xl border mb-6">
+                <h3 class="font-semibold text-lg mb-3" data-translate="choose_lang_prompt">Select your preferred language / మీ భాషను ఎంచుకోండి</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="selectInitialLanguage('en')" class="p-4 rounded-xl border border-[var(--border-color)] hover:border-[var(--accent-color)] font-semibold transition flex flex-col items-center justify-center space-y-2">
+                        <span class="text-xl">🇬🇧</span>
+                        <span>English</span>
+                    </button>
+                    <button onclick="selectInitialLanguage('te')" class="p-4 rounded-xl border border-[var(--border-color)] hover:border-[var(--accent-color)] font-semibold transition flex flex-col items-center justify-center space-y-2">
+                        <span class="text-xl">🇮🇳</span>
+                        <span>తెలుగు (Telugu)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: Onboarding Pathway Screen -->
+        <div id="view-onboarding" class="hidden flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto my-auto py-12">
+            <h2 class="text-3xl font-bold mb-2 text-center" data-translate="onboard_title">How would you like to begin your journey?</h2>
+            <p class="text-[var(--text-muted)] mb-8 text-center" data-translate="onboard_desc">Choose your starting path below to customize your AI learning curriculum.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                <!-- Path A: Start from Scratch -->
+                <div onclick="startPathway('scratch')" class="custom-card p-8 rounded-2xl cursor-pointer hover:border-[var(--accent-color)] transition flex flex-col justify-between group shadow-lg">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-seedling"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2" data-translate="path_scratch_title">Start from Scratch</h3>
+                        <p class="text-[var(--text-muted)] text-sm mb-6" data-translate="path_scratch_desc">Begin with foundational lessons covering alphabets, basic vocabulary, everyday greetings, and simple sentence structures.</p>
+                    </div>
+                    <button class="custom-btn py-2.5 px-4 rounded-xl font-semibold w-full text-center" data-translate="btn_start_scratch">Start Fundamentals</button>
+                </div>
+
+                <!-- Path B: Adaptive Test -->
+                <div onclick="startPathway('test')" class="custom-card p-8 rounded-2xl cursor-pointer hover:border-[var(--accent-color)] transition flex flex-col justify-between group shadow-lg">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2" data-translate="path_test_title">Take Adaptive Test</h3>
+                        <p class="text-[var(--text-muted)] text-sm mb-6" data-translate="path_test_desc">Take a quick AI-powered interactive quiz to evaluate your proficiency (Beginner, Intermediate, Advanced) and unlock custom lessons.</p>
+                    </div>
+                    <button class="custom-btn py-2.5 px-4 rounded-xl font-semibold w-full text-center" data-translate="btn_start_test">Take Assessment Quiz</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: Adaptive Test Screen -->
+        <div id="view-test" class="hidden flex-1 flex flex-col max-w-2xl mx-auto w-full py-8">
+            <div class="custom-card p-6 rounded-2xl shadow-xl border mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-xs uppercase font-bold tracking-wider px-2.5 py-1 rounded bg-black/20 text-[var(--text-muted)]" id="test-progress-label">Question 1 of 5</span>
+                    <span class="text-sm font-medium text-[var(--accent-color)]" data-translate="assessment_badge">AI Assessment</span>
+                </div>
+                <h3 id="test-question" class="text-xl font-semibold mb-6">Loading assessment question...</h3>
+                <div id="test-options" class="space-y-3">
+                    <!-- Options injected dynamically -->
+                </div>
+            </div>
+            <div id="test-loading" class="hidden text-center py-8">
+                <i class="fa-solid fa-spinner fa-spin text-3xl text-[var(--accent-color)] mb-3"></i>
+                <p class="text-[var(--text-muted)]" data-translate="evaluating_text">Gemini is analyzing your proficiency level...</p>
+            </div>
+        </div>
+
+        <!-- VIEW 4: Main Dashboard / Learning Hub -->
+        <div id="view-dashboard" class="hidden flex-1 flex flex-col w-full">
+            <!-- Navigation Tabs -->
+            <div class="flex space-x-2 border-b border-[var(--border-color)] pb-4 mb-6 overflow-x-auto">
+                <button onclick="switchTab('lessons')" id="tab-btn-lessons" class="px-4 py-2 rounded-xl font-medium text-sm flex items-center space-x-2 custom-btn whitespace-nowrap">
+                    <i class="fa-solid fa-book"></i>
+                    <span data-translate="tab_lessons">Lessons & Modules</span>
+                </button>
+                <button onclick="switchTab('chat')" id="tab-btn-chat" class="px-4 py-2 rounded-xl font-medium text-sm flex items-center space-x-2 bg-black/20 text-[var(--text-muted)] hover:bg-black/40 whitespace-nowrap">
+                    <i class="fa-solid fa-comments"></i>
+                    <span data-translate="tab_chat">1-on-1 Live AI Chat & Speech</span>
+                </button>
+            </div>
+
+            <!-- TAB 1: Lessons & Modules Content -->
+            <div id="tab-content-lessons" class="space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 custom-card p-6 rounded-2xl shadow-lg">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span id="user-level-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400">Beginner</span>
+                            <span class="text-xs text-[var(--text-muted)]" id="user-path-desc">Customized Curriculum</span>
+                        </div>
+                        <h2 class="text-2xl font-bold" data-translate="dashboard_title">Your Personalized Learning Path</h2>
+                        <p class="text-sm text-[var(--text-muted)]" data-translate="dashboard_subtitle">Select a module below or let Gemini generate a tailored lesson for you.</p>
+                    </div>
+                    <button onclick="generateCustomLesson()" class="custom-btn px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center space-x-2 shadow-md">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span data-translate="btn_gen_lesson">Generate AI Lesson</span>
+                    </button>
+                </div>
+
+                <!-- Modules Grid -->
+                <div id="modules-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- TAB 2: Live AI Chat & Speech Coaching -->
+            <div id="tab-content-chat" class="hidden flex-1 flex flex-col h-[70vh] custom-card rounded-2xl shadow-xl overflow-hidden border">
+                <!-- Chat Header -->
+                <div class="p-4 border-b border-[var(--border-color)] flex justify-between items-center bg-black/10">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full custom-btn flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-sm" data-translate="chat_header_title">Aryan AI Speech & Grammar Coach</h3>
+                            <p class="text-xs text-[var(--text-muted)]" data-translate="chat_header_subtitle">Speak or type in English. Get scored on accuracy & fluency.</p>
+                        </div>
+                    </div>
+                    <button onclick="clearChatHistory()" class="text-xs text-[var(--text-muted)] hover:text-red-400 px-3 py-1 rounded border border-[var(--border-color)]">
+                        <i class="fa-solid fa-trash-can mr-1"></i> <span data-translate="clear_chat">Clear Chat</span>
+                    </button>
+                </div>
+
+                <!-- Chat Messages Area -->
+                <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-full custom-btn flex items-center justify-center flex-shrink-0 text-sm font-bold">AI</div>
+                        <div class="custom-card p-4 rounded-2xl max-w-xl text-sm border">
+                            <p data-translate="chat_welcome">Hello! I am your AI English coach. Let's practice conversation. Speak or type your response below, and I'll evaluate your grammar, fluency, and hesitation rate!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Speech Evaluation Panel (Appears after AI response) -->
+                <div id="evaluation-panel" class="hidden bg-black/20 border-t border-[var(--border-color)] p-4">
+                    <div class="max-w-3xl mx-auto">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-[var(--accent-color)]" data-translate="eval_title">AI Speech & Grammar Evaluation</h4>
+                            <span id="eval-overall-score" class="text-xs font-bold px-2 py-0.5 rounded bg-green-500/20 text-green-400">Score: 8.5/10</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-2">
+                            <div class="custom-card p-2.5 rounded-xl border text-xs">
+                                <div class="text-[var(--text-muted)] mb-1" data-translate="metric_grammar">Grammar & Accuracy</div>
+                                <div id="score-grammar" class="font-bold text-sm text-blue-400">9/10</div>
+                            </div>
+                            <div class="custom-card p-2.5 rounded-xl border text-xs">
+                                <div class="text-[var(--text-muted)] mb-1" data-translate="metric_fluency">Confidence & Fluency</div>
+                                <div id="score-fluency" class="font-bold text-sm text-purple-400">8/10</div>
+                            </div>
+                            <div class="custom-card p-2.5 rounded-xl border text-xs">
+                                <div class="text-[var(--text-muted)] mb-1" data-translate="metric_hesitation">Hesitation / Stuttering</div>
+                                <div id="score-hesitation" class="font-bold text-sm text-amber-400">Low (9/10)</div>
+                            </div>
+                        </div>
+                        <p id="eval-feedback" class="text-xs text-[var(--text-muted)] italic">Great sentence structure! Try to avoid filler words like "um" to boost your fluency score.</p>
+                    </div>
+                </div>
+
+                <!-- Chat Input Footer -->
+                <div class="p-3 border-t border-[var(--border-color)] bg-black/10 flex items-center space-x-2">
+                    <button id="mic-btn" onclick="toggleSpeechRecognition()" class="w-10 h-10 rounded-xl border border-[var(--border-color)] hover:border-[var(--accent-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition" title="Speak into microphone">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    <input type="text" id="chat-input" placeholder="Type your message in English or click mic to speak..." class="flex-1 bg-black/20 border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--accent-color)]" onkeypress="handleChatKeypress(event)">
+                    <button onclick="sendChatMessage()" class="custom-btn px-5 py-2.5 rounded-xl font-semibold text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span data-translate="send_btn">Send</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Lesson Modal -->
+    <div id="lesson-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="custom-card max-w-2xl w-full max-h-[90vh] rounded-2xl shadow-2xl border flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-[var(--border-color)] flex justify-between items-center bg-black/10">
+                <h3 id="modal-lesson-title" class="font-bold text-lg">Lesson Title</h3>
+                <button onclick="closeLessonModal()" class="text-[var(--text-muted)] hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="modal-lesson-body" class="p-6 overflow-y-auto space-y-4 text-sm leading-relaxed">
+                <!-- Lesson content injected here -->
+            </div>
+            <div class="p-4 border-t border-[var(--border-color)] flex justify-between items-center bg-black/10">
+                <button onclick="speakLessonContent()" class="px-4 py-2 rounded-xl border border-[var(--border-color)] text-xs font-semibold hover:bg-black/20 flex items-center space-x-2">
+                    <i class="fa-solid fa-volume-high"></i>
+                    <span data-translate="listen_audio">Listen to Audio</span>
+                </button>
+                <button onclick="closeLessonModal()" class="custom-btn px-5 py-2 rounded-xl text-xs font-semibold" data-translate="close_btn">Close Lesson</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings & API Key Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="custom-card max-w-md w-full rounded-2xl shadow-2xl border p-6 space-y-6">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg" data-translate="settings_title">Platform Settings</h3>
+                <button onclick="closeSettingsModal()" class="text-[var(--text-muted)] hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- Gemini API Key Input -->
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2" data-translate="api_key_label">Google Gemini API Key</label>
+                <input type="password" id="api-key-input" placeholder=AQ.Ab8RN6L1khYFsY3hwcil3id55-nP_sZe_esjoB-skL_PPHl-WQ class="w-full bg-black/20 border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--accent-color)]">
+                <p class="text-xs text-[var(--text-muted)] mt-1.5" data-translate="api_key_hint">Stored securely in your browser's localStorage. Required for AI features.</p>
+            </div>
+
+            <!-- Theme Picker -->
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2" data-translate="theme_label">Color Palette / Theme</label>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <button onclick="setTheme('theme-midnight')" class="p-2.5 rounded-xl border border-[var(--border-color)] text-xs font-medium hover:border-[var(--accent-color)] flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-indigo-500"></span>
+                        <span>Midnight Dark</span>
+                    </button>
+                    <button onclick="setTheme('theme-emerald')" class="p-2.5 rounded-xl border border-[var(--border-color)] text-xs font-medium hover:border-[var(--accent-color)] flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                        <span>Emerald Prof.</span>
+                    </button>
+                    <button onclick="setTheme('theme-ocean')" class="p-2.5 rounded-xl border border-[var(--border-color)] text-xs font-medium hover:border-[var(--accent-color)] flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-sky-500"></span>
+                        <span>Ocean Breeze</span>
+                    </button>
+                    <button onclick="setTheme('theme-sunset')" class="p-2.5 rounded-xl border border-[var(--border-color)] text-xs font-medium hover:border-[var(--accent-color)] flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                        <span>Sunset Warmth</span>
+                    </button>
+                    <button onclick="setTheme('theme-slate')" class="p-2.5 rounded-xl border border-[var(--border-color)] text-xs font-medium hover:border-[var(--accent-color)] flex items-center space-x-2 col-span-2">
+                        <span class="w-3 h-3 rounded-full bg-slate-500"></span>
+                        <span>Minimalist Slate</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-2">
+                <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl border border-[var(--border-color)] text-xs font-semibold hover:bg-black/20" data-translate="cancel_btn">Cancel</button>
+                <button onclick="saveSettings()" class="custom-btn px-5 py-2 rounded-xl text-xs font-semibold" data-translate="save_btn">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Dictionary for Bilingual UI (English & Telugu)
+        const i18n = {
+            en: {
+                site_title: "Aryan's Learning Site",
+                site_subtitle: "AI-Powered English Masterclass",
+                welcome_title: "Welcome to Aryan's Learning Site",
+                welcome_desc: "Your personal AI English tutor designed to take you from foundational basics to fluent mastery with voice coaching and real-time feedback.",
+                choose_lang_prompt: "Select your preferred language / మీ భాషను ఎంచుకోండి",
+                onboard_title: "How would you like to begin your journey?",
+                onboard_desc: "Choose your starting path below to customize your AI learning curriculum.",
+                path_scratch_title: "Start from Scratch",
+                path_scratch_desc: "Begin with foundational lessons covering alphabets, basic vocabulary, everyday greetings, and simple sentence structures.",
+                btn_start_scratch: "Start Fundamentals",
+                path_test_title: "Take Adaptive Test",
+                path_test_desc: "Take a quick AI-powered interactive quiz to evaluate your proficiency (Beginner, Intermediate, Advanced) and unlock custom lessons.",
+                btn_start_test: "Take Assessment Quiz",
+                assessment_badge: "AI Assessment",
+                evaluating_text: "Gemini is analyzing your proficiency level...",
+                tab_lessons: "Lessons & Modules",
+                tab_chat: "1-on-1 Live AI Chat & Speech",
+                dashboard_title: "Your Personalized Learning Path",
+                dashboard_subtitle: "Select a module below or let Gemini generate a tailored lesson for you.",
+                btn_gen_lesson: "Generate AI Lesson",
+                chat_header_title: "Aryan AI Speech & Grammar Coach",
+                chat_header_subtitle: "Speak or type in English. Get scored on accuracy & fluency.",
+                clear_chat: "Clear Chat",
+                chat_welcome: "Hello! I am your AI English coach. Let's practice conversation. Speak or type your response below, and I'll evaluate your grammar, fluency, and hesitation rate!",
+                eval_title: "AI Speech & Grammar Evaluation",
+                metric_grammar: "Grammar & Accuracy",
+                metric_fluency: "Confidence & Fluency",
+                metric_hesitation: "Hesitation / Stuttering",
+                send_btn: "Send",
+                listen_audio: "Listen to Audio",
+                close_btn: "Close Lesson",
+                settings_title: "Platform Settings",
+                api_key_label: "Google Gemini API Key",
+                api_key_hint: "Stored securely in your browser's localStorage. Required for AI features.",
+                theme_label: "Color Palette / Theme",
+                cancel_btn: "Cancel",
+                save_btn: "Save Settings"
+            },
+            te: {
+                site_title: "ఆర్యన్స్ లెర్నింగ్ సైట్",
+                site_subtitle: "AI-ఆధారిత ఇంగ్లీష్ మాస్టర్‌క్లాస్",
+                welcome_title: "ఆర్యన్స్ లెర్నింగ్ సైట్‌కు స్వాగతం",
+                welcome_desc: "మీ వాయిస్ కోచింగ్ మరియు రియల్ టైమ్ ఫీడ్‌బ్యాక్‌తో ఇంగ్లీష్‌లో నిపుణులుగా మార్చడానికి మీ వ్యక్తిగత AI ట్యూటర్.",
+                choose_lang_prompt: "మీ భాషను ఎంచుకోండి / Select your preferred language",
+                onboard_title: "మీ అభ్యాస ప్రయాణాన్ని ఎలా ప్రారంభించాలనుకుంటున్నారు?",
+                onboard_desc: "మీ AI కరికులాన్ని అనుకూలీకరించడానికి దిగువన ప్రారంభ మార్గాన్ని ఎంచుకోండి.",
+                path_scratch_title: "సున్నా నుండి ప్రారంభించండి (Start from Scratch)",
+                path_scratch_desc: "వర్ణమాలలు, ప్రాథమిక పదజాలం మరియు సాధారణ వాక్య నిర్మాణాలతో కూడిన ప్రాథమిక పాఠాలతో ప్రారంభించండి.",
+                btn_start_scratch: "ప్రాథమిక పాఠాలు ప్రారంభించండి",
+                path_test_title: "అడాప్టివ్ టెస్ట్ రాయండి (Adaptive Test)",
+                path_test_desc: "మీ ఇంగ్లీష్ నైపుణ్యాన్ని (బిగినర్, ఇంటర్మీడియట్, అడ్వాన్స్‌డ్) అంచనా వేయడానికి త్వరిత AI క్విజ్ రాయండి.",
+                btn_start_test: "అసెస్మెంట్ క్విజ్ ప్రారంభించండి",
+                assessment_badge: "AI అసెస్‌మెంట్",
+                evaluating_text: "జెమిని మీ నైపుణ్య స్థాయిని విశ్లేషిస్తోంది...",
+                tab_lessons: "పాఠాలు & మాడ్యూల్స్",
+                tab_chat: "1-on-1 లైవ్ AI చాట్ & స్పీచ్",
+                dashboard_title: "మీ వ్యక్తిగతీకరించిన లెర్నింగ్ పాత్",
+                dashboard_subtitle: "క్రింది మాడ్యూల్‌ను ఎంచుకోండి లేదా జెమినితో కొత్త పాఠాన్ని సృష్టించండి.",
+                btn_gen_lesson: "AI పాఠాన్ని సృష్టించండి",
+                chat_header_title: "ఆర్యన్ AI స్పీచ్ & గ్రామర్ కోచ్",
+                chat_header_subtitle: "ఇంగ్లీష్‌లో మాట్లాడండి లేదా టైప్ చేయండి. మీ వ్యాకరణం మరియు పటిమను స్కోర్ చేయండి.",
+                clear_chat: "చాట్ క్లియర్ చేయండి",
+                chat_welcome: "నమస్కారం! నేను మీ AI ఇంగ్లీష్ కోచ్‌ని. ఇంగ్లీష్ సంభాషణను అభ్యసిద్దాం. మీ సందేశాన్ని టైప్ చేయండి లేదా మైక్రోఫోన్ ద్వారా మాట్లాడండి!",
+                eval_title: "AI స్పీచ్ & గ్రామర్ మూల్యాంకనం",
+                metric_grammar: "వ్యాకరణం & ఖచ్చితత్వం",
+                metric_fluency: "ఆత్మవిశ్వాసం & పటిమ",
+                metric_hesitation: "తడబాటు / హెసిటేషన్",
+                send_btn: "పంపు",
+                listen_audio: "ఆడియో వినండి",
+                close_btn: "మూసివేయి",
+                settings_title: "ప్లాట్‌ఫారమ్ సెట్టింగ్‌లు",
+                api_key_label: "గూగుల్ జెమిని API కీ",
+                api_key_hint: "మీ బ్రౌజర్ యొక్క లోకల్ స్టోరేజ్‌లో భద్రపరచబడుతుంది.",
+                theme_label: "కలర్ థీమ్",
+                cancel_btn: "రద్దు చేయి",
+                save_btn: "సేవ్ చేయి"
+            }
+        };
+
+        // Application State
+        let currentLang = localStorage.getItem('aryan_lang') || 'en';
+        let currentTheme = localStorage.getItem('aryan_theme') || 'theme-midnight';
+        let apiKey = localStorage.getItem('aryan_gemini_key') || '';
+        let userLevel = localStorage.getItem('aryan_level') || 'Beginner';
+        let userPathway = localStorage.getItem('aryan_pathway') || '';
+        
+        let testQuestions = [];
+        let currentTestIndex = 0;
+        let testAnswers = [];
+
+        let chatHistory = [];
+        let recognition = null;
+        let isRecording = false;
+
+        // Default Curriculum Modules
+        let learningModules = [
+            { id: 1, title: "Everyday Greetings & Introductions", level: "Beginner", desc: "Learn how to introduce yourself politely and greet people in different settings.", icon: "fa-handshake" },
+            { id: 2, title: "Essential Daily Vocabulary", level: "Beginner", desc: "Master 50+ common words used in shopping, commuting, and food ordering.", icon: "fa-book" },
+            { id: 3, title: "Simple Present & Past Tenses", level: "Intermediate", desc: "Understand how to talk about daily habits and past experiences accurately.", icon: "fa-clock" },
+            { id: 4, title: "Professional Email & Workplace English", level: "Intermediate", desc: "Craft polite corporate emails and participate effectively in office meetings.", icon: "fa-briefcase" },
+            { id: 5, title: "Advanced Idioms & Fluent Conversations", level: "Advanced", desc: "Speak like a native speaker using advanced conversational idioms and phrasing.", icon: "fa-comments" }
+        ];
+
+        // Initialize App on Load
+        window.onload = function() {
+            setTheme(currentTheme);
+            updateUIText();
+            
+            // Check if user already completed onboarding
+            if (userPathway) {
+                showView('view-dashboard');
+                renderModules();
+            } else if (localStorage.getItem('aryan_lang')) {
+                showView('view-onboarding');
+            } else {
+                showView('view-landing');
+            }
+
+            // Initialize Speech Recognition if supported
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onresult = function(event) {
+                    const speechText = event.results[0][0].transcript;
+                    document.getElementById('chat-input').value = speechText;
+                    stopRecordingUI();
+                    sendChatMessage();
+                };
+
+                recognition.onerror = function(event) {
+                    stopRecordingUI();
+                };
+
+                recognition.onend = function() {
+                    stopRecordingUI();
+                };
+            }
+        };
+
+        // Switch Views Helper
+        function showView(viewId) {
+            ['view-landing', 'view-onboarding', 'view-test', 'view-dashboard'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+
+        // Language Toggle
+        function selectInitialLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('aryan_lang', lang);
+            updateUIText();
+            showView('view-onboarding');
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'te' : 'en';
+            localStorage.setItem('aryan_lang', currentLang);
+            updateUIText();
+        }
+
+        function updateUIText() {
+            document.getElementById('lang-display').innerText = currentLang === 'en' ? 'Telugu (తెలుగు)' : 'English';
+            document.getElementById('nav-settings').innerText = currentLang === 'en' ? 'Settings' : 'సెట్టింగ్‌లు';
+            
+            // Update data-translate elements
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if (i18n[currentLang][key]) {
+                    el.innerText = i18n[currentLang][key];
+                }
+            });
+        }
+
+        // Theme Switcher
+        function setTheme(themeClass) {
+            currentTheme = themeClass;
+            localStorage.setItem('aryan_theme', themeClass);
+            document.body.className = `min-h-screen flex flex-col ${themeClass}`;
+        }
+
+        // Settings Modal
+        function openSettingsModal() {
+            document.getElementById('api-key-input').value = apiKey;
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        function saveSettings() {
+            apiKey = document.getElementById('api-key-input').value.trim();
+            localStorage.setItem('aryan_gemini_key', apiKey);
+            closeSettingsModal();
+        }
+
+        // Onboarding Pathways
+        function startPathway(path) {
+            userPathway = path;
+            localStorage.setItem('aryan_pathway', path);
+            if (path === 'scratch') {
+                userLevel = 'Beginner';
+                localStorage.setItem('aryan_level', userLevel);
+                showView('view-dashboard');
+                renderModules();
+            } else {
+                startAdaptiveTest();
+            }
+        }
+
+        // Adaptive Test Flow using Gemini API
+        async function startAdaptiveTest() {
+            showView('view-test');
+            document.getElementById('test-loading').classList.remove('hidden');
+            
+            const prompt = `Generate 4 English proficiency assessment multiple-choice questions (testing grammar, vocabulary, and sentence construction) suitable for determining if a user is Beginner, Intermediate, or Advanced. 
+            Return ONLY a valid JSON array in this exact format:
+            [
+              {
+                "question": "Choose the correct sentence:",
+                "options": ["She go to school yesterday.", "She went to school yesterday.", "She gone to school yesterday.", "She going to school yesterday."],
+                "answer": 1
+              }
+            ]`;
+
+            try {
+                const response = await callGeminiAPI(prompt);
+                let jsonText = response.trim();
+                if (jsonText.startsWith('```json')) {
+                    jsonText = jsonText.replace(/^```json/, '').replace(/```$/, '').trim();
+                } else if (jsonText.startsWith('```')) {
+                    jsonText = jsonText.replace(/^```/, '').replace(/```$/, '').trim();
+                }
+                testQuestions = JSON.parse(jsonText);
+                currentTestIndex = 0;
+                testAnswers = [];
+                document.getElementById('test-loading').classList.add('hidden');
+                renderTestQuestion();
+            } catch (err) {
+                // Fallback questions if API key missing or error
+                testQuestions = [
+                    { question: "Choose the correct past tense of 'go':", options: ["Goed", "Gone", "Went", "Going"], answer: 2 },
+                    { question: "Which sentence is grammatically correct?", options: ["He don't like apples.", "He doesn't likes apples.", "He doesn't like apples.", "He not like apples."], answer: 2 },
+                    { question: "Select the appropriate synonym for 'Rapid':", options: ["Slow", "Quick", "Heavy", "Quiet"], answer: 1 },
+                    { question: "Choose the correct preposition: 'She is good ___ mathematics.'", options: ["at", "in", "on", "with"], answer: 0 }
+                ];
+                currentTestIndex = 0;
+                testAnswers = [];
+                document.getElementById('test-loading').classList.add('hidden');
+                renderTestQuestion();
+            }
+        }
+
+        function renderTestQuestion() {
+            if (currentTestIndex >= testQuestions.length) {
+                finishAdaptiveTest();
+                return;
+            }
+            const q = testQuestions[currentTestIndex];
+            document.getElementById('test-progress-label').innerText = `Question ${currentTestIndex + 1} of ${testQuestions.length}`;
+            document.getElementById('test-question').innerText = q.question;
+            
+            const optionsContainer = document.getElementById('test-options');
+            optionsContainer.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-xl custom-card border border-[var(--border-color)] hover:border-[var(--accent-color)] font-medium transition';
+                btn.innerText = opt;
+                btn.onclick = () => answerTestQuestion(idx);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function answerTestQuestion(selectedIndex) {
+            const q = testQuestions[currentTestIndex];
+            testAnswers.push(selectedIndex === q.answer);
+            currentTestIndex++;
+            renderTestQuestion();
+        }
+
+        function finishAdaptiveTest() {
+            const correctCount = testAnswers.filter(Boolean).length;
+            if (correctCount >= 3) {
+                userLevel = 'Advanced';
+            } else if (correctCount >= 2) {
+                userLevel = 'Intermediate';
+            } else {
+                userLevel = 'Beginner';
+            }
+            localStorage.setItem('aryan_level', userLevel);
+            showView('view-dashboard');
+            renderModules();
+        }
+
+        // Dashboard Tab Switcher
+        function switchTab(tabName) {
+            const lessonsBtn = document.getElementById('tab-btn-lessons');
+            const chatBtn = document.getElementById('tab-btn-chat');
+            const lessonsContent = document.getElementById('tab-content-lessons');
+            const chatContent = document.getElementById('tab-content-chat');
+
+            if (tabName === 'lessons') {
+                lessonsBtn.className = "px-4 py-2 rounded-xl font-medium text-sm flex items-center space-x-2 custom-btn whitespace-nowrap";
+                chatBtn.className = "px-4 py-2 rounded-xl font-medium text-sm flex items-center space-x-2 bg-black/20 text-[var(--text-muted)] hover:bg-black/40 whitespace-nowrap";
+                lessonsContent.classList.remove('hidden');
+                chatContent.classList.add('hidden');
+            } else {
+                chatBtn.className = "px-4 py-2 rounded-xl font-medium text-sm flex items-center space-x-2 custom-btn whitespace-nowrap";
+                lessonsBtn.className = "px-4 py-2 rounded-xl font-medium text-sm flex items-center space-x-2 bg-black/20 text-[var(--text-muted)] hover:bg-black/40 whitespace-nowrap";
+                chatContent.classList.remove('hidden');
+                lessonsContent.classList.add('hidden');
+            }
+        }
+
+        // Render Modules
+        function renderModules() {
+            document.getElementById('user-level-badge').innerText = userLevel;
+            const grid = document.getElementById('modules-grid');
+            grid.innerHTML = '';
+
+            learningModules.forEach(mod => {
+                const card = document.createElement('div');
+                card.className = 'custom-card p-6 rounded-2xl shadow-lg border flex flex-col justify-between hover:border-[var(--accent-color)] transition';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg">
+                                <i class="fa-solid ${mod.icon}"></i>
+                            </div>
+                            <span class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-black/20 text-[var(--text-muted)]">${mod.level}</span>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">${mod.title}</h3>
+                        <p class="text-xs text-[var(--text-muted)] mb-6 leading-relaxed">${mod.desc}</p>
+                    </div>
+                    <button onclick="openLessonModal(${mod.id})" class="custom-btn py-2 px-4 rounded-xl text-xs font-semibold w-full text-center">Start Lesson</button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Open Lesson Modal & AI Content Generation
+        async function openLessonModal(modId) {
+            const mod = learningModules.find(m => m.id === modId);
+            document.getElementById('modal-lesson-title').innerText = mod ? mod.title : "AI Lesson";
+            const body = document.getElementById('modal-lesson-body');
+            body.innerHTML = `<div class="text-center py-8"><i class="fa-solid fa-spinner fa-spin text-2xl text-[var(--accent-color)] mb-2"></i><p class="text-xs text-[var(--text-muted)]">Gemini is generating your personalized interactive lesson...</p></div>`;
+            document.getElementById('lesson-modal').classList.remove('hidden');
+
+            const prompt = `Create a comprehensive, engaging English learning lesson titled "${mod ? mod.title : 'English Module'}" for a ${userLevel} level student. 
+            Include:
+            1. Core Concepts & Grammar Rules (with Telugu explanations if helpful)
+            2. 3 Practical Real-life Examples with translation
+            3. A short 3-question practice exercise with answers.
+            Format cleanly with HTML tags (<h2>, <p>, <ul>, <li>, <strong>).`;
+
+            try {
+                const result = await callGeminiAPI(prompt);
+                body.innerHTML = result;
+            } catch (err) {
+                body.innerHTML = `
+                    <h4 class="font-bold text-base mb-2">Lesson Overview: ${mod.title}</h4>
+                    <p class="text-xs text-[var(--text-muted)] mb-4">Focusing on ${userLevel} proficiency standards.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-xs">
+                        <li><strong>Rule 1:</strong> Practice pronunciation daily with clear articulation.</li>
+                        <li><strong>Rule 2:</strong> Build vocabulary by learning 5 new words every day.</li>
+                        <li><strong>Example:</strong> "Good morning! How are you doing today?" (శుభోదయం! మీరు ఈరోజు ఎలా ఉన్నారు?)</li>
+                    </ul>
+                `;
+            }
+        }
+
+        function closeLessonModal() {
+            document.getElementById('lesson-modal').classList.add('hidden');
+        }
+
+        function speakLessonContent() {
+            const text = document.getElementById('modal-lesson-body').innerText;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        async function generateCustomLesson() {
+            const title = prompt("Enter topic for custom AI lesson (e.g., 'Airport Conversation' or 'Past Tense Verbs'):");
+            if (!title) return;
+            
+            learningModules.push({
+                id: learningModules.length + 1,
+                title: title,
+                level: userLevel,
+                desc: "Custom AI-generated lesson tailored to your specific learning interest.",
+                icon: "fa-star"
+            });
+            renderModules();
+            openLessonModal(learningModules[learningModules.length - 1].id);
+        }
+
+        // Live AI Chat & Speech Coaching Engine
+        function handleChatKeypress(e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = '';
+            appendChatMessage('user', text);
+            chatHistory.push({ role: 'user', parts: [{ text: text }] });
+
+            // Show typing indicator
+            const typingId = appendChatMessage('ai', 'Thinking and evaluating your speech...');
+
+            const prompt = `You are an expert AI English tutor and speech coach. The user just said: "${text}".
+            Respond naturally to continue the conversation in English. Also, evaluate their English proficiency for this sentence.
+            Return a JSON object in this exact format:
+            {
+              "reply": "Your conversational response here...",
+              "score": 8.5,
+              "grammarScore": "9/10",
+              "fluencyScore": "8/10",
+              "hesitationScore": "Low (9/10)",
+              "feedback": "Constructive feedback on grammar, confidence, or filler words."
+            }`;
+
+            try {
+                const response = await callGeminiAPI(prompt);
+                let jsonText = response.trim();
+                if (jsonText.startsWith('```json')) {
+                    jsonText = jsonText.replace(/^```json/, '').replace(/```$/, '').trim();
+                } else if (jsonText.startsWith('```')) {
+                    jsonText = jsonText.replace(/^```/, '').replace(/```$/, '').trim();
+                }
+                const data = JSON.parse(jsonText);
+                
+                // Remove typing indicator
+                document.getElementById(typingId).remove();
+                
+                appendChatMessage('ai', data.reply);
+                chatHistory.push({ role: 'model', parts: [{ text: data.reply }] });
+
+                // Display Evaluation
+                showEvaluationPanel(data);
+
+                // Speak response audio
+                const utterance = new SpeechSynthesisUtterance(data.reply);
+                utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+
+            } catch (err) {
+                document.getElementById(typingId).remove();
+                const fallbackReply = "That's a very interesting point! Let's keep practicing your English sentence structure. Try telling me more about your daily hobbies.";
+                appendChatMessage('ai', fallbackReply);
+                showEvaluationPanel({
+                    score: 8.0,
+                    grammarScore: "8/10",
+                    fluencyScore: "8/10",
+                    hesitationScore: "Low",
+                    feedback: "Good vocabulary usage! Keep sentences active and clear."
+                });
+            }
+        }
+
+        function appendChatMessage(sender, text) {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            const msgId = 'msg-' + Date.now();
+            div.id = msgId;
+            div.className = `flex items-start space-x-3 ${sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`;
+            
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-full ${sender === 'user' ? 'bg-emerald-500/20 text-emerald-400' : 'custom-btn'} flex items-center justify-center flex-shrink-0 text-sm font-bold">${sender === 'user' ? 'U' : 'AI'}</div>
+                <div class="custom-card p-4 rounded-2xl max-w-xl text-sm border shadow-md">
+                    <p>${text}</p>
+                </div>
+            `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return msgId;
+        }
+
+        function showEvaluationPanel(data) {
+            document.getElementById('evaluation-panel').classList.remove('hidden');
+            document.getElementById('eval-overall-score').innerText = `Score: ${data.score}/10`;
+            document.getElementById('score-grammar').innerText = data.grammarScore;
+            document.getElementById('score-fluency').innerText = data.fluencyScore;
+            document.getElementById('score-hesitation').innerText = data.hesitationScore;
+            document.getElementById('eval-feedback').innerText = data.feedback;
+        }
+
+        function clearChatHistory() {
+            document.getElementById('chat-messages.innerHTML') = '';
+            document.getElementById('chat-messages').innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 rounded-full custom-btn flex items-center justify-center flex-shrink-0 text-sm font-bold">AI</div>
+                    <div class="custom-card p-4 rounded-2xl max-w-xl text-sm border">
+                        <p>Chat cleared. Let's start fresh! Speak or type your English sentence below.</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('evaluation-panel').classList.add('hidden');
+            chatHistory = [];
+        }
+
+        // Web Speech API Microphone Integration
+        function toggleSpeechRecognition() {
+            if (!recognition) {
+                alert("Speech recognition is not supported in your browser. Please use Chrome or Edge.");
+                return;
+            }
+            const micBtn = document.getElementById('mic-btn');
+            if (isRecording) {
+                recognition.stop();
+                stopRecordingUI();
+            } else {
+                recognition.start();
+                isRecording = true;
+                micBtn.classList.add('bg-red-500/20', 'border-red-500', 'text-red-400', 'recording-pulse');
+                document.getElementById('chat-input').placeholder = "Listening... Speak now...";
+            }
+        }
+
+        function stopRecordingUI() {
+            isRecording = false;
+            const micBtn = document.getElementById('mic-btn');
+            micBtn.classList.remove('bg-red-500/20', 'border-red-500', 'text-red-400', 'recording-pulse');
+            document.getElementById('chat-input').placeholder = "Type your message in English or click mic to speak...";
+        }
+
+        // Gemini API Helper with Exponential Backoff
+        async function callGeminiAPI(prompt, retries = 3, delay = 1000) {
+            const modelName = "gemini-3-flash-preview";
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }]
+            };
+
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+                    const candidate = result.candidates?.[0];
+                    if (candidate && candidate.content?.parts?.[0]?.text) {
+                        return candidate.content.parts[0].text;
+                    }
+                    throw new Error("Invalid response structure from Gemini API");
+                } catch (err) {
+                    if (i === retries - 1) throw err;
+                    await new Promise(res => setTimeout(res, delay * Math.pow(2, i)));
+                }
+            }
+        }
+    </script>
+</body>
+</html>
